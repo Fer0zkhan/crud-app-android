@@ -19,6 +19,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private String user_id = "user_id";
     private String name = "user_name";
     private String phone = "user_phone";
+    private String age = "user_age";
+    private String salary = "user_salary";
+    private String doj = "user_doj";
 
     public DatabaseHandler(@Nullable Context context) {
         super(context, gymManagementSystem, null, dataBase_Version);
@@ -29,6 +32,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String createUserTable =
                 "CREATE TABLE " + Table_User +
                         " (" + user_id + " INTEGER PRIMARY KEY NOT NULL, " + name + " TEXT, " + phone +
+                        " TEXT, " + age +
+                        " TEXT, " + salary +
+                        " TEXT, " + doj +
                         " TEXT " + " )";
         db.execSQL(createUserTable);
     }
@@ -45,6 +51,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(name, user.getName());
         values.put(phone, user.getPhone());
+        values.put(age, user.getAge());
+        values.put(salary, user.getSalary());
+        values.put(doj, user.getDoj());
 
         db.insert(Table_User, null, values);
         db.close();
@@ -52,7 +61,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public User getUserByID(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String[] projection = {user_id, name, phone};
+        String[] projection = {user_id, name, phone, age, salary, doj};
         String selection = user_id + " =? "; // '=?' -> where
         String[] args = {String.valueOf(id)};
         Cursor cursor = db.query(Table_User, projection, selection, args, null, null, null);
@@ -61,6 +70,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         user.setId(cursor.getString(cursor.getColumnIndexOrThrow(user_id)));
         user.setName(cursor.getString(cursor.getColumnIndexOrThrow(name)));
         user.setPhone(cursor.getString(cursor.getColumnIndexOrThrow(phone)));
+        user.setAge(cursor.getString(cursor.getColumnIndexOrThrow(age)));
+        user.setSalary(cursor.getString(cursor.getColumnIndexOrThrow(salary)));
+        user.setDoj(cursor.getString(cursor.getColumnIndexOrThrow(doj)));
         cursor.close();
         return user;
     }
@@ -73,7 +85,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         while (cursor.moveToNext()) { //iterate unless cursor is null.
             userList.add(new User(cursor.getString(cursor.getColumnIndexOrThrow(user_id)),
                     cursor.getString(cursor.getColumnIndexOrThrow(name)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(phone))));
+                    cursor.getString(cursor.getColumnIndexOrThrow(phone)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(age)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(salary)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(doj))));
         }
         cursor.close();
         return userList;
@@ -86,11 +101,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return deleteCurrentValue;
     }
 
-    public boolean updateUser(String iid, String n, String p) {
+    public boolean updateUser(String iid, String n, String p, String a, String s, String d) {
         SQLiteDatabase db = this.getReadableDatabase();
-        ContentValues data=new ContentValues();
+        ContentValues data = new ContentValues();
         data.put(name, n);
         data.put(phone, p);
+        data.put(age, a);
+        data.put(salary, s);
+        data.put(doj, d);
         db.update(Table_User, data, "user_id=" + iid, null);
         db.close();
         return true;
